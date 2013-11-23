@@ -1,8 +1,13 @@
-import numpy as np
+from __future__ import absolute_import
 
-def unwrap(wrapped_array, 
-           wrap_around_axis_0 = False, 
-           wrap_around_axis_1 = False, 
+import numpy as np
+from unwrap.unwrap2D import unwrap2D
+from unwrap.unwrap3D import unwrap3D
+
+
+def unwrap(wrapped_array,
+           wrap_around_axis_0 = False,
+           wrap_around_axis_1 = False,
            wrap_around_axis_2 = False):
 
     wrapped_array = np.require(wrapped_array, np.float32, ['C'])
@@ -12,14 +17,12 @@ def unwrap(wrapped_array,
     wrapped_array_masked = np.ma.asarray(wrapped_array)
     unwrapped_array = np.empty_like(wrapped_array_masked.data)
     if wrapped_array.ndim == 2:
-        import unwrap2D
-        unwrap2D._unwrap2D(wrapped_array_masked.data, 
+        unwrap2D(wrapped_array_masked.data,
                            np.ma.getmaskarray(wrapped_array_masked).astype(np.uint8),
                            unwrapped_array,
                            bool(wrap_around_axis_0), bool(wrap_around_axis_1))
     elif wrapped_array.ndim == 3:
-        import unwrap3D
-        unwrap3D._unwrap3D(wrapped_array_masked.data,
+        unwrap3D(wrapped_array_masked.data,
                            np.ma.getmaskarray(wrapped_array_masked).astype(np.uint8),
                            unwrapped_array,
                            bool(wrap_around_axis_0), bool(wrap_around_axis_1), bool(wrap_around_axis_2))

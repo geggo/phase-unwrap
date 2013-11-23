@@ -1,17 +1,17 @@
 // 3D phase unwrapping, modified for inclusion in scipy by Gregor Thalhammer
 
 //This program was written by Hussein Abdul-Rahman and Munther Gdeisat to program the three-dimensional phase unwrapper
-//entitled "Fast three-dimensional phase-unwrapping algorithm based on sorting by 
+//entitled "Fast three-dimensional phase-unwrapping algorithm based on sorting by
 //reliability following a noncontinuous path"
-//by  Hussein Abdul-Rahman, Munther A. Gdeisat, David R. Burton, and Michael J. Lalor, 
-//published in the Proceedings of SPIE - 
+//by  Hussein Abdul-Rahman, Munther A. Gdeisat, David R. Burton, and Michael J. Lalor,
+//published in the Proceedings of SPIE -
 //The International Society for Optical Engineering, Vol. 5856, No. 1, 2005, pp. 32-40
 //This program was written by Munther Gdeisat, Liverpool John Moores University, United Kingdom.
 //Date 31st August 2007
 //The wrapped phase volume is assumed to be of floating point data type. The resultant unwrapped phase volume is also of floating point type.
 //Read the data from the file frame by frame
-//The mask is of byte data type. 
-//When the mask is 255 this means that the voxel is valid 
+//The mask is of byte data type.
+//When the mask is 255 this means that the voxel is valid
 //When the mask is 0 this means that the voxel is invalid (noisy or corrupted voxel)
 //This program takes into consideration the image wrap around problem encountered in MRI imaging.
 
@@ -32,7 +32,7 @@ typedef struct
   int y_connectivity;
   int z_connectivity;
   int no_of_edges;
-} params_t;  
+} params_t;
 
 //VOXELM information
 struct VOXELM
@@ -55,7 +55,7 @@ typedef struct VOXELM VOXELM;
 //the EDGE is the line that connects two voxels.
 //if we have S voxels, then we have S horizontal edges and S vertical edges
 struct EDGE
-{    
+{
   float reliab;			//reliabilty of the edge and it depends on the two voxels
   VOXELM *pointer_1;		//pointer to the first voxel
   VOXELM *pointer_2;		//pointer to the second voxel
@@ -104,6 +104,8 @@ yes_no find_pivot(EDGE *left, EDGE *right, float *pivot_ptr)
 		}
 		return no;
 	}
+
+    return no;
 }
 
 EDGE *partition(EDGE *left, EDGE *right, float pivot)
@@ -157,14 +159,14 @@ void  initialiseVOXELs(float *WrappedVolume, unsigned char *input_mask, unsigned
 	  for (j=0; j < volume_width; j++)
 	    {
 	      voxel_pointer->increment = 0;
-	      voxel_pointer->number_of_voxels_in_group = 1;		
+	      voxel_pointer->number_of_voxels_in_group = 1;
 	      voxel_pointer->value = *wrapped_volume_pointer;
 	      voxel_pointer->reliability = 9999999.f + rand();
 	      voxel_pointer->input_mask = *input_mask_pointer;
 	      voxel_pointer->extended_mask = *extended_mask_pointer;
 	      voxel_pointer->head = voxel_pointer;
 	      voxel_pointer->last = voxel_pointer;
-	      voxel_pointer->next = NULL;			
+	      voxel_pointer->next = NULL;
 	      voxel_pointer->new_group = 0;
 	      voxel_pointer->group = -1;
 	      voxel_pointer++;
@@ -190,7 +192,7 @@ float wrap(float voxel_value)
 // voxelL_value is the left voxel,	voxelR_value is the right voxel
 int find_wrap(float voxelL_value, float voxelR_value)
 {
-  float difference; 
+  float difference;
   int wrap_value;
   difference = voxelL_value - voxelR_value;
 
@@ -199,14 +201,14 @@ int find_wrap(float voxelL_value, float voxelR_value)
   else wrap_value = 0;
 
   return wrap_value;
-} 
+}
 
 void extend_mask(unsigned char *input_mask, unsigned char *extended_mask, int volume_width, int volume_height, int volume_depth, params_t *params)
 {
   int n, i, j;
-  int vw = volume_width, vh = volume_height, vd = volume_depth;
+  int vw = volume_width;
   int fs  = volume_width * volume_height;	//frame size
-  int frame_size = volume_width * volume_height; 
+  int frame_size = volume_width * volume_height;
   int volume_size = volume_width * volume_height * volume_depth;	//volume size
   int vs = volume_size;
   unsigned char *IMP = input_mask    + frame_size + volume_width + 1;	//input mask pointer
@@ -219,7 +221,7 @@ void extend_mask(unsigned char *input_mask, unsigned char *extended_mask, int vo
         {
 	  for (j=1; j < volume_width - 1; j++)
 	    {
-	      if( (*IMP) == NOMASK		&& (*(IMP - 1) == NOMASK)		&& (*(IMP + 1) == NOMASK) && 
+	      if( (*IMP) == NOMASK		&& (*(IMP - 1) == NOMASK)		&& (*(IMP + 1) == NOMASK) &&
 		  (*(IMP + vw) == NOMASK)	&& (*(IMP + vw - 1) == NOMASK)		&& (*(IMP + vw + 1) == NOMASK) &&
 		  (*(IMP - vw) == NOMASK)	&& (*(IMP - vw - 1) == NOMASK)		&& (*(IMP - vw + 1) == NOMASK) &&
 		  (*(IMP + fs) == NOMASK)	&& (*(IMP + fs - 1) == NOMASK)		&& (*(IMP + fs + 1) == NOMASK) &&
@@ -228,7 +230,7 @@ void extend_mask(unsigned char *input_mask, unsigned char *extended_mask, int vo
 		  (*(IMP - fs) == NOMASK)	&& (*(IMP - fs - 1) == NOMASK)		&& (*(IMP - fs + 1) == NOMASK) &&
 		  (*(IMP - fs - vw) == NOMASK)	&& (*(IMP - fs - vw - 1) == NOMASK)	&& (*(IMP - fs - vw + 1) == NOMASK) &&
 		  (*(IMP - fs + vw) == NOMASK)	&& (*(IMP - fs + vw - 1) == NOMASK)	&& (*(IMP - fs + vw + 1) == NOMASK))
-		{		
+		{
 		  *EMP = NOMASK;
 		}
 	      ++EMP;
@@ -239,7 +241,7 @@ void extend_mask(unsigned char *input_mask, unsigned char *extended_mask, int vo
 	}
       EMP += 2 * volume_width;
       IMP += 2 * volume_width;
-    }		
+    }
 
   if (params->x_connectivity == 1)
     {
@@ -251,19 +253,19 @@ void extend_mask(unsigned char *input_mask, unsigned char *extended_mask, int vo
 	  for (i=1; i < volume_height - 1; i++)
 	    {
 	      if( (*IMP) == NOMASK			&& (*(IMP + vw - 1) == NOMASK)		&& (*(IMP + 1) == NOMASK) &&
-		  (*(IMP - vw) == NOMASK)		&& (*(IMP + vw) == NOMASK)	&& 
+		  (*(IMP - vw) == NOMASK)		&& (*(IMP + vw) == NOMASK)	&&
 		  (*(IMP - fs) == NOMASK)		&& (*(IMP + fs) == NOMASK) &&
 		  (*(IMP - 1) == NOMASK)		&& (*(IMP + vw + 1) == NOMASK) &&
-		  (*(IMP - vw + 1) == NOMASK)		&& (*(IMP + 2 * vw - 1) == NOMASK) && 
-		  (*(IMP - fs - 1) == NOMASK)		&& (*(IMP + fs + vw + 1) == NOMASK) && 
+		  (*(IMP - vw + 1) == NOMASK)		&& (*(IMP + 2 * vw - 1) == NOMASK) &&
+		  (*(IMP - fs - 1) == NOMASK)		&& (*(IMP + fs + vw + 1) == NOMASK) &&
 		  (*(IMP - fs - vw) == NOMASK)		&& (*(IMP + fs + vw) == NOMASK) &&
-		  (*(IMP - fs - vw + 1) == NOMASK)	&& (*(IMP + fs + 2 * vw - 1) == NOMASK) && 
-		  (*(IMP - fs + vw - 1) == NOMASK)	&& (*(IMP + fs + 1) == NOMASK)	&& 
+		  (*(IMP - fs - vw + 1) == NOMASK)	&& (*(IMP + fs + 2 * vw - 1) == NOMASK) &&
+		  (*(IMP - fs + vw - 1) == NOMASK)	&& (*(IMP + fs + 1) == NOMASK)	&&
 		  (*(IMP - fs + 1) == NOMASK)		&& (*(IMP + fs + vw - 1) == NOMASK) &&
 		  (*(IMP - fs + 2 * vw - 1) == NOMASK)	&& (*(IMP + fs - vw + 1) == NOMASK) &&
-		  (*(IMP - fs + vw) == NOMASK)		&& (*(IMP + fs - vw) == NOMASK) && 
+		  (*(IMP - fs + vw) == NOMASK)		&& (*(IMP + fs - vw) == NOMASK) &&
 		  (*(IMP - fs + vw + 1) == NOMASK)	&& (*(IMP + fs - 1) == NOMASK) )
-		{		
+		{
 		  *EMP = NOMASK;
 		}
 	      EMP += vw;
@@ -281,19 +283,19 @@ void extend_mask(unsigned char *input_mask, unsigned char *extended_mask, int vo
 	  for (i=1; i < volume_height - 1; i++)
 	    {
 	      if( (*IMP) == NOMASK			&& (*(IMP - vw + 1) == NOMASK)	&& (*(IMP - 1) == NOMASK) &&
-		  (*(IMP - vw) == NOMASK)		&& (*(IMP + vw) == NOMASK) && 
+		  (*(IMP - vw) == NOMASK)		&& (*(IMP + vw) == NOMASK) &&
 		  (*(IMP - fs) == NOMASK)		&& (*(IMP + fs) == NOMASK) &&
 		  (*(IMP - vw - 1) == NOMASK)		&& (*(IMP + 1) == NOMASK) &&
-		  (*(IMP + vw - 1) == NOMASK)		&& (*(IMP - 2 * vw + 1) == NOMASK) && 
-		  (*(IMP - fs - vw - 1) == NOMASK)	&& (*(IMP + fs + 1) == NOMASK)	&& 
+		  (*(IMP + vw - 1) == NOMASK)		&& (*(IMP - 2 * vw + 1) == NOMASK) &&
+		  (*(IMP - fs - vw - 1) == NOMASK)	&& (*(IMP + fs + 1) == NOMASK)	&&
 		  (*(IMP - fs - 2 * vw + 1) == NOMASK)	&& (*(IMP + fs + vw - 1) == NOMASK) &&
-		  (*(IMP - fs - 1) == NOMASK)		&& (*(IMP + fs - vw + 1) == NOMASK) && 
-		  (*(IMP - fs - vw + 1) == NOMASK)	&& (*(IMP + fs - 1) == NOMASK)	&& 
+		  (*(IMP - fs - 1) == NOMASK)		&& (*(IMP + fs - vw + 1) == NOMASK) &&
+		  (*(IMP - fs - vw + 1) == NOMASK)	&& (*(IMP + fs - 1) == NOMASK)	&&
 		  (*(IMP - fs - vw) == NOMASK)		&& (*(IMP + fs + vw) == NOMASK) &&
 		  (*(IMP - fs + vw - 1) == NOMASK)	&& (*(IMP + fs - 2 * vw + 1) == NOMASK) &&
-		  (*(IMP - fs + vw) == NOMASK)		&& (*(IMP + fs - vw) == NOMASK) && 
-		  (*(IMP - fs + 1) == NOMASK)		&& (*(IMP + fs - vw - 1) == NOMASK) )					
-		{		
+		  (*(IMP - fs + vw) == NOMASK)		&& (*(IMP + fs - vw) == NOMASK) &&
+		  (*(IMP - fs + 1) == NOMASK)		&& (*(IMP + fs - vw - 1) == NOMASK) )
+		{
 		  *EMP = NOMASK;
 		}
 	      EMP += vw;
@@ -302,31 +304,31 @@ void extend_mask(unsigned char *input_mask, unsigned char *extended_mask, int vo
 	  EMP += 2 * vw;
 	  IMP += 2 *vw;
 	}
-    }		
+    }
 
   if (params->y_connectivity == 1)
     {
       //extend the mask to the left side of the phase volume
-      IMP = input_mask + frame_size + 1;	
+      IMP = input_mask + frame_size + 1;
       EMP = extended_mask + frame_size + 1;
       for (n=1; n < volume_depth - 1; n++)
 	{
 	  for (j=1; j < volume_width - 1; j++)
 	    {
 	      if( (*IMP) == NOMASK			&& (*(IMP - 1) == NOMASK) && (*(IMP + 1) == NOMASK) &&
-		  (*(IMP + fs - vw) == NOMASK)		&& (*(IMP + vw) == NOMASK) && 
+		  (*(IMP + fs - vw) == NOMASK)		&& (*(IMP + vw) == NOMASK) &&
 		  (*(IMP - fs) == NOMASK)		&& (*(IMP + fs) == NOMASK) &&
 		  (*(IMP + fs - vw - 1) == NOMASK)	&& (*(IMP + vw + 1) == NOMASK) &&
-		  (*(IMP + fs - vw + 1) == NOMASK)	&& (*(IMP + vw - 1) == NOMASK) && 
-		  (*(IMP - vw - 1) == NOMASK)		&& (*(IMP + fs + vw + 1) == NOMASK) && 
+		  (*(IMP + fs - vw + 1) == NOMASK)	&& (*(IMP + vw - 1) == NOMASK) &&
+		  (*(IMP - vw - 1) == NOMASK)		&& (*(IMP + fs + vw + 1) == NOMASK) &&
 		  (*(IMP - vw) == NOMASK)		&& (*(IMP + fs + vw) == NOMASK) &&
-		  (*(IMP - vw + 1) == NOMASK)		&& (*(IMP + fs + vw - 1) == NOMASK) && 
-		  (*(IMP - fs - 1) == NOMASK)		&& (*(IMP + fs + 1) == NOMASK)	&& 
+		  (*(IMP - vw + 1) == NOMASK)		&& (*(IMP + fs + vw - 1) == NOMASK) &&
+		  (*(IMP - fs - 1) == NOMASK)		&& (*(IMP + fs + 1) == NOMASK)	&&
 		  (*(IMP - fs + 1) == NOMASK)		&& (*(IMP + fs - 1) == NOMASK) &&
 		  (*(IMP - fs + vw - 1) == NOMASK)	&& (*(IMP + 2 * fs - vw + 1) == NOMASK) &&
-		  (*(IMP - fs + vw) == NOMASK)		&& (*(IMP + 2 * fs - vw) == NOMASK) && 
+		  (*(IMP - fs + vw) == NOMASK)		&& (*(IMP + 2 * fs - vw) == NOMASK) &&
 		  (*(IMP - fs + vw + 1) == NOMASK)	&& (*(IMP + 2 * fs - vw - 1) == NOMASK) )
-		{		
+		{
 		  *EMP = NOMASK;
 		}
 	      EMP++;
@@ -344,19 +346,19 @@ void extend_mask(unsigned char *input_mask, unsigned char *extended_mask, int vo
 	  for (j=1; j < volume_width - 1; j++)
 	    {
 	      if( (*IMP) == NOMASK			&& (*(IMP + 1) == NOMASK) && (*(IMP - 1) == NOMASK) &&
-		  (*(IMP - vw) == NOMASK)		&& (*(IMP - fs + vw) == NOMASK)	&& 
+		  (*(IMP - vw) == NOMASK)		&& (*(IMP - fs + vw) == NOMASK)	&&
 		  (*(IMP - fs) == NOMASK)		&& (*(IMP + fs) == NOMASK) &&
 		  (*(IMP - vw - 1) == NOMASK)		&& (*(IMP - fs + vw + 1) == NOMASK) &&
-		  (*(IMP - vw + 1) == NOMASK)		&& (*(IMP - fs + vw - 1) == NOMASK) && 
-		  (*(IMP - fs - vw - 1) == NOMASK)	&& (*(IMP + vw + 1) == NOMASK)	&& 
+		  (*(IMP - vw + 1) == NOMASK)		&& (*(IMP - fs + vw - 1) == NOMASK) &&
+		  (*(IMP - fs - vw - 1) == NOMASK)	&& (*(IMP + vw + 1) == NOMASK)	&&
 		  (*(IMP - fs - vw + 1) == NOMASK)	&& (*(IMP + vw - 1) == NOMASK) &&
-		  (*(IMP - fs - vw) == NOMASK)		&& (*(IMP + vw) == NOMASK) && 
-		  (*(IMP - fs - 1) == NOMASK)		&& (*(IMP + fs + 1) == NOMASK)	&& 
+		  (*(IMP - fs - vw) == NOMASK)		&& (*(IMP + vw) == NOMASK) &&
+		  (*(IMP - fs - 1) == NOMASK)		&& (*(IMP + fs + 1) == NOMASK)	&&
 		  (*(IMP - fs + 1) == NOMASK)		&& (*(IMP + fs - 1) == NOMASK) &&
 		  (*(IMP - 2 * fs + vw - 1) == NOMASK)	&& (*(IMP + fs - vw + 1) == NOMASK) &&
-		  (*(IMP - 2 * fs + vw) == NOMASK)	&& (*(IMP + fs - vw) == NOMASK) && 
-		  (*(IMP - 2 * fs + vw + 1) == NOMASK)	&& (*(IMP + fs - vw - 1) == NOMASK) )							
-		{		
+		  (*(IMP - 2 * fs + vw) == NOMASK)	&& (*(IMP + fs - vw) == NOMASK) &&
+		  (*(IMP - 2 * fs + vw + 1) == NOMASK)	&& (*(IMP + fs - vw - 1) == NOMASK) )
+		{
 		  *EMP = NOMASK;
 		}
 	      EMP++;
@@ -370,26 +372,26 @@ void extend_mask(unsigned char *input_mask, unsigned char *extended_mask, int vo
   if (params->z_connectivity == 1)
     {
       //extend the mask to the bottom side of the phase volume
-      IMP = input_mask + volume_width + 1;	
+      IMP = input_mask + volume_width + 1;
       EMP = extended_mask + volume_width + 1;
       for (i=1; i < volume_height - 1; ++i)
 	{
 	  for (j=1; j < volume_width - 1; ++j)
 	    {
 	      if( (*IMP) == NOMASK			&& (*(IMP - 1) == NOMASK)		&& (*(IMP + 1) == NOMASK) &&
-		  (*(IMP - vw) == NOMASK)		&& (*(IMP + vw) == NOMASK)	&& 
+		  (*(IMP - vw) == NOMASK)		&& (*(IMP + vw) == NOMASK)	&&
 		  (*(IMP + fs) == NOMASK)		&& (*(IMP + vs  -  fs) == NOMASK) &&
 		  (*(IMP - vw - 1) == NOMASK)		&& (*(IMP + vw + 1) == NOMASK) &&
-		  (*(IMP - vw + 1) == NOMASK)		&& (*(IMP + vw - 1) == NOMASK) && 
-		  (*(IMP + vs - fs - vw - 1) == NOMASK)	&& (*(IMP + fs + vw + 1) == NOMASK) && 
+		  (*(IMP - vw + 1) == NOMASK)		&& (*(IMP + vw - 1) == NOMASK) &&
+		  (*(IMP + vs - fs - vw - 1) == NOMASK)	&& (*(IMP + fs + vw + 1) == NOMASK) &&
 		  (*(IMP + vs - fs - vw) == NOMASK)	&& (*(IMP + fs + vw) == NOMASK) &&
-		  (*(IMP + vs - fs - vw + 1) == NOMASK)	&& (*(IMP + fs + vw - 1) == NOMASK) && 
-		  (*(IMP + vs - fs - 1) == NOMASK)	&& (*(IMP + fs + 1) == NOMASK)	&& 
+		  (*(IMP + vs - fs - vw + 1) == NOMASK)	&& (*(IMP + fs + vw - 1) == NOMASK) &&
+		  (*(IMP + vs - fs - 1) == NOMASK)	&& (*(IMP + fs + 1) == NOMASK)	&&
 		  (*(IMP + vs - fs + 1) == NOMASK)	&& (*(IMP + fs - 1) == NOMASK) &&
 		  (*(IMP + vs - fs + vw - 1) == NOMASK)	&& (*(IMP + fs - vw + 1) == NOMASK) &&
-		  (*(IMP + vs - fs + vw) == NOMASK)	&& (*(IMP + fs - vw) == NOMASK) && 
+		  (*(IMP + vs - fs + vw) == NOMASK)	&& (*(IMP + fs - vw) == NOMASK) &&
 		  (*(IMP + vs - fs + vw + 1) == NOMASK)	&& (*(IMP + fs - vw - 1) == NOMASK) )
-		{		
+		{
 		  *EMP = NOMASK;
 		}
 	      EMP++;
@@ -400,26 +402,26 @@ void extend_mask(unsigned char *input_mask, unsigned char *extended_mask, int vo
 	}
 
       //extend the mask to the top side of the phase volume
-      IMP = input_mask + volume_size - frame_size + volume_width + 1;	
+      IMP = input_mask + volume_size - frame_size + volume_width + 1;
       EMP = extended_mask + volume_size - frame_size + volume_width + 1;
       for (i=1; i < volume_height - 1; ++i)
 	{
 	  for (j=1; j < volume_width - 1; ++j)
 	    {
 	      if( (*IMP) == NOMASK			&& (*(IMP + 1) == NOMASK)		&& (*(IMP - 1) == NOMASK) &&
-		  (*(IMP - vw) == NOMASK)		&& (*(IMP - fs + vw) == NOMASK)	&& 
+		  (*(IMP - vw) == NOMASK)		&& (*(IMP - fs + vw) == NOMASK)	&&
 		  (*(IMP - fs) == NOMASK)		&& (*(IMP - vs + fs) == NOMASK) &&
 		  (*(IMP - vw - 1) == NOMASK)		&& (*(IMP + vw + 1) == NOMASK) &&
-		  (*(IMP - vw + 1) == NOMASK)		&& (*(IMP + vw - 1) == NOMASK) && 
-		  (*(IMP - fs - vw - 1) == NOMASK)	&& (*(IMP - vs + fs + vw + 1) == NOMASK) && 
+		  (*(IMP - vw + 1) == NOMASK)		&& (*(IMP + vw - 1) == NOMASK) &&
+		  (*(IMP - fs - vw - 1) == NOMASK)	&& (*(IMP - vs + fs + vw + 1) == NOMASK) &&
 		  (*(IMP - fs - vw + 1) == NOMASK)	&& (*(IMP - vs + fs + vw - 1) == NOMASK) &&
-		  (*(IMP - fs - vw) == NOMASK)		&& (*(IMP - vs + fs + vw) == NOMASK) && 
-		  (*(IMP - fs - 1) == NOMASK)		&& (*(IMP - vs + fs + 1) == NOMASK)	&& 
+		  (*(IMP - fs - vw) == NOMASK)		&& (*(IMP - vs + fs + vw) == NOMASK) &&
+		  (*(IMP - fs - 1) == NOMASK)		&& (*(IMP - vs + fs + 1) == NOMASK)	&&
 		  (*(IMP - fs + 1) == NOMASK)		&& (*(IMP - vs + fs - 1) == NOMASK) &&
 		  (*(IMP - fs + vw - 1) == NOMASK)	&& (*(IMP - vs + fs - vw + 1) == NOMASK) &&
-		  (*(IMP - fs + vw) == NOMASK)		&& (*(IMP - vs + fs - vw) == NOMASK) && 
-		  (*(IMP - fs + vw + 1) == NOMASK)	&& (*(IMP - vs + fs - vw - 1) == NOMASK) )		
-		{		
+		  (*(IMP - fs + vw) == NOMASK)		&& (*(IMP - vs + fs - vw) == NOMASK) &&
+		  (*(IMP - fs + vw + 1) == NOMASK)	&& (*(IMP - vs + fs - vw - 1) == NOMASK) )
+		{
 		  *EMP = NOMASK;
 		}
 	      EMP++;
@@ -432,14 +434,14 @@ void extend_mask(unsigned char *input_mask, unsigned char *extended_mask, int vo
 }
 
 void calculate_reliability(float *wrappedVolume, VOXELM *voxel, int volume_width, int volume_height, int volume_depth, params_t *params)
-{ 
+{
   int frame_size  = volume_width * volume_height;
   int volume_size = volume_width * volume_height * volume_depth;
   VOXELM *voxel_pointer;
   float H, V, N, D1, D2, D3, D4, D5, D6, D7, D8, D9, D10;
   float *WVP;
   int n, i, j;
-	
+
   WVP = wrappedVolume + frame_size + volume_width + 1;
   voxel_pointer = voxel + frame_size + volume_width + 1;
   for (n=1; n < volume_depth - 1; n++)
@@ -449,7 +451,7 @@ void calculate_reliability(float *wrappedVolume, VOXELM *voxel, int volume_width
 	  for (j=1; j < volume_width - 1; j++)
 	    {
 	      if (voxel_pointer->extended_mask == NOMASK)
-		{ 
+		{
 		  H  = wrap(*(WVP - 1) - *WVP) - wrap(*WVP - *(WVP + 1));
 		  V  = wrap(*(WVP - volume_width) - *WVP) - wrap(*WVP - *(WVP + volume_width));
 		  N  = wrap(*(WVP - frame_size) - *WVP) - wrap(*WVP - *(WVP + frame_size));
@@ -463,7 +465,7 @@ void calculate_reliability(float *wrappedVolume, VOXELM *voxel, int volume_width
 		  D8 = wrap(*(WVP - frame_size + volume_width - 1) - *WVP) - wrap(*WVP - *(WVP + frame_size - volume_width + 1));
 		  D9 = wrap(*(WVP - frame_size + volume_width) - *WVP) - wrap(*WVP - *(WVP + frame_size - volume_width));
 		  D10 = wrap(*(WVP - frame_size + volume_width + 1) - *WVP) - wrap(*WVP - *(WVP + frame_size - volume_width - 1));
-		  voxel_pointer->reliability = H*H + V*V + N*N + D1*D1 + D2*D2  + D3*D3 + D4*D4  + D5*D5 + D6*D6  
+		  voxel_pointer->reliability = H*H + V*V + N*N + D1*D1 + D2*D2  + D3*D3 + D4*D4  + D5*D5 + D6*D6
 		    + D7*D7 + D8*D8 + D9*D9 + D10*D10;
 		}
 	      voxel_pointer++;
@@ -486,7 +488,7 @@ void calculate_reliability(float *wrappedVolume, VOXELM *voxel, int volume_width
 	  for (i=1; i < volume_height - 1; ++i)
 	    {
 	      if (voxel_pointer->extended_mask == NOMASK)
-		{ 
+		{
 		  H  = wrap(*(WVP + volume_width - 1) - *WVP) - wrap(*WVP - *(WVP + 1));
 		  V  = wrap(*(WVP - volume_width) - *WVP) - wrap(*WVP - *(WVP + volume_width));
 		  N  = wrap(*(WVP - frame_size) - *WVP) - wrap(*WVP - *(WVP + frame_size));
@@ -500,7 +502,7 @@ void calculate_reliability(float *wrappedVolume, VOXELM *voxel, int volume_width
 		  D8 = wrap(*(WVP - frame_size + 2 * volume_width - 1) - *WVP) - wrap(*WVP - *(WVP + frame_size - volume_width + 1));
 		  D9 = wrap(*(WVP - frame_size + volume_width) - *WVP) - wrap(*WVP - *(WVP + frame_size - volume_width));
 		  D10 = wrap(*(WVP - frame_size + volume_width + 1) - *WVP) - wrap(*WVP - *(WVP + frame_size - 1));
-		  voxel_pointer->reliability = H*H + V*V + N*N + D1*D1 + D2*D2  + D3*D3 + D4*D4  + D5*D5 + D6*D6  
+		  voxel_pointer->reliability = H*H + V*V + N*N + D1*D1 + D2*D2  + D3*D3 + D4*D4  + D5*D5 + D6*D6
 		    + D7*D7 + D8*D8 + D9*D9 + D10*D10;
 		}
 	      voxel_pointer += volume_width;
@@ -509,7 +511,7 @@ void calculate_reliability(float *wrappedVolume, VOXELM *voxel, int volume_width
 	  voxel_pointer += 2 * volume_width;
 	  WVP += 2 * volume_width;
 	}
-		
+
       //calculating reliability for the rear side of the phase volume..... subtract volume_width
       WVP = wrappedVolume + frame_size + 2 * volume_width - 1;
       voxel_pointer = voxel + frame_size + 2 * volume_width - 1;
@@ -518,7 +520,7 @@ void calculate_reliability(float *wrappedVolume, VOXELM *voxel, int volume_width
 	  for (i=1; i < volume_height - 1; ++i)
 	    {
 	      if (voxel_pointer->extended_mask == NOMASK)
-		{ 
+		{
 		  H  = wrap(*(WVP - volume_width + 1) - *WVP) - wrap(*WVP - *(WVP - 1));
 		  V  = wrap(*(WVP - volume_width) - *WVP) - wrap(*WVP - *(WVP + volume_width));
 		  N  = wrap(*(WVP - frame_size) - *WVP) - wrap(*WVP - *(WVP + frame_size));
@@ -532,7 +534,7 @@ void calculate_reliability(float *wrappedVolume, VOXELM *voxel, int volume_width
 		  D8 = wrap(*(WVP - frame_size + volume_width - 1) - *WVP) - wrap(*WVP - *(WVP + frame_size - 2 * volume_width + 1));
 		  D9 = wrap(*(WVP - frame_size + volume_width) - *WVP) - wrap(*WVP - *(WVP + frame_size - volume_width));
 		  D10 = wrap(*(WVP - frame_size + 1) - *WVP) - wrap(*WVP - *(WVP + frame_size - volume_width - 1));
-		  voxel_pointer->reliability = H*H + V*V + N*N + D1*D1 + D2*D2  + D3*D3 + D4*D4  + D5*D5 + D6*D6  
+		  voxel_pointer->reliability = H*H + V*V + N*N + D1*D1 + D2*D2  + D3*D3 + D4*D4  + D5*D5 + D6*D6
 		    + D7*D7 + D8*D8 + D9*D9 + D10*D10;
 		}
 	      voxel_pointer += volume_width;
@@ -540,7 +542,7 @@ void calculate_reliability(float *wrappedVolume, VOXELM *voxel, int volume_width
 	    }
 	  voxel_pointer += 2 * volume_width;
 	  WVP += 2 * volume_width;
-	}		
+	}
     }
 
   if (params->y_connectivity == 1)
@@ -553,7 +555,7 @@ void calculate_reliability(float *wrappedVolume, VOXELM *voxel, int volume_width
 	  for (j=1; j < volume_width - 1; ++j)
 	    {
 	      if (voxel_pointer->extended_mask == NOMASK)
-		{ 
+		{
 		  H  = wrap(*(WVP - 1) - *WVP) - wrap(*WVP - *(WVP + 1));
 		  V  = wrap(*(WVP + frame_size - volume_width) - *WVP) - wrap(*WVP - *(WVP + volume_width));
 		  N  = wrap(*(WVP - frame_size) - *WVP) - wrap(*WVP - *(WVP + frame_size));
@@ -567,7 +569,7 @@ void calculate_reliability(float *wrappedVolume, VOXELM *voxel, int volume_width
 		  D8  = wrap(*(WVP - frame_size + volume_width - 1) - *WVP) - wrap(*WVP - *(WVP + 2 * frame_size - volume_width + 1));
 		  D9  = wrap(*(WVP - frame_size + volume_width) - *WVP) - wrap(*WVP - *(WVP + 2 * frame_size - volume_width));
 		  D10  = wrap(*(WVP - frame_size + volume_width + 1) - *WVP) - wrap(*WVP - *(WVP + 2 * frame_size - volume_width - 1));
-		  voxel_pointer->reliability = H*H + V*V + N*N + D1*D1 + D2*D2  + D3*D3 + D4*D4  + D5*D5 + D6*D6  
+		  voxel_pointer->reliability = H*H + V*V + N*N + D1*D1 + D2*D2  + D3*D3 + D4*D4  + D5*D5 + D6*D6
 		    + D7*D7 + D8*D8 + D9*D9 + D10*D10;
 		}
 	      voxel_pointer++;
@@ -575,7 +577,7 @@ void calculate_reliability(float *wrappedVolume, VOXELM *voxel, int volume_width
 	    }
 	  voxel_pointer += frame_size - volume_width + 2;
 	  WVP += frame_size - volume_width + 2;
-	}	
+	}
 
       //calculating reliability for the right side of the phase volume...subtract frame_size
       WVP = wrappedVolume + 2 * frame_size - volume_width + 1;
@@ -585,7 +587,7 @@ void calculate_reliability(float *wrappedVolume, VOXELM *voxel, int volume_width
 	  for (j=1; j < volume_width - 1; ++j)
 	    {
 	      if (voxel_pointer->extended_mask == NOMASK)
-		{ 
+		{
 		  H  = wrap(*(WVP + 1) - *WVP) - wrap(*WVP - *(WVP - 1));
 		  V  = wrap(*(WVP - volume_width) - *WVP) - wrap(*WVP - *(WVP - frame_size + volume_width));
 		  N  = wrap(*(WVP - frame_size) - *WVP) - wrap(*WVP - *(WVP + frame_size));
@@ -599,7 +601,7 @@ void calculate_reliability(float *wrappedVolume, VOXELM *voxel, int volume_width
 		  D8  = wrap(*(WVP - 2 * frame_size + volume_width - 1) - *WVP) - wrap(*WVP - *(WVP + frame_size - volume_width + 1));
 		  D9  = wrap(*(WVP - 2 * frame_size + volume_width) - *WVP) - wrap(*WVP - *(WVP + frame_size - volume_width));
 		  D10  = wrap(*(WVP - 2 * frame_size + volume_width + 1) - *WVP) - wrap(*WVP - *(WVP + frame_size - volume_width - 1));
-		  voxel_pointer->reliability = H*H + V*V + N*N + D1*D1 + D2*D2  + D3*D3 + D4*D4  + D5*D5 + D6*D6  
+		  voxel_pointer->reliability = H*H + V*V + N*N + D1*D1 + D2*D2  + D3*D3 + D4*D4  + D5*D5 + D6*D6
 		    + D7*D7 + D8*D8 + D9*D9 + D10*D10;
 		}
 	      voxel_pointer++;
@@ -607,7 +609,7 @@ void calculate_reliability(float *wrappedVolume, VOXELM *voxel, int volume_width
 	    }
 	  voxel_pointer += frame_size - volume_width + 2;
 	  WVP += frame_size - volume_width + 2;
-	}		
+	}
     }
 
   if (params->z_connectivity == 1)
@@ -620,7 +622,7 @@ void calculate_reliability(float *wrappedVolume, VOXELM *voxel, int volume_width
 	  for (j=1; j < volume_width - 1; ++j)
 	    {
 	      if (voxel_pointer->extended_mask == NOMASK)
-		{ 
+		{
 		  H  = wrap(*(WVP - 1) - *WVP) - wrap(*WVP - *(WVP + 1));
 		  V  = wrap(*(WVP - volume_width) - *WVP) - wrap(*WVP - *(WVP + volume_width));
 		  N  = wrap(*(WVP + frame_size) - *WVP) - wrap(*WVP - *(WVP + volume_size - frame_size));
@@ -634,7 +636,7 @@ void calculate_reliability(float *wrappedVolume, VOXELM *voxel, int volume_width
 		  D8  = wrap(*(WVP + volume_size - frame_size + volume_width - 1) - *WVP) - wrap(*WVP - *(WVP + frame_size - volume_width + 1));
 		  D9  = wrap(*(WVP + volume_size - frame_size + volume_width) - *WVP) - wrap(*WVP - *(WVP + frame_size - volume_width));
 		  D10 = wrap(*(WVP + volume_size - frame_size + volume_width + 1) - *WVP) - wrap(*WVP - *(WVP + frame_size - volume_width - 1));
-		  voxel_pointer->reliability = H*H + V*V + N*N + D1*D1 + D2*D2  + D3*D3 + D4*D4  + D5*D5 + D6*D6  
+		  voxel_pointer->reliability = H*H + V*V + N*N + D1*D1 + D2*D2  + D3*D3 + D4*D4  + D5*D5 + D6*D6
 		    + D7*D7 + D8*D8 + D9*D9 + D10*D10;
 		}
 	      voxel_pointer++;
@@ -642,7 +644,7 @@ void calculate_reliability(float *wrappedVolume, VOXELM *voxel, int volume_width
 	    }
 	  voxel_pointer += 2;
 	  WVP += 2;
-	}	
+	}
 
       //calculating reliability for the top side of the phase volume...subtract volume_size
       WVP = wrappedVolume + volume_size - frame_size + volume_width + 1;
@@ -652,7 +654,7 @@ void calculate_reliability(float *wrappedVolume, VOXELM *voxel, int volume_width
 	  for (j=1; j < volume_width - 1; ++j)
 	    {
 	      if (voxel_pointer->extended_mask == NOMASK)
-		{ 
+		{
 		  H  = wrap(*(WVP + 1) - *WVP) - wrap(*WVP - *(WVP - 1));
 		  V  = wrap(*(WVP - volume_width) - *WVP) - wrap(*WVP - *(WVP + volume_width));
 		  N  = wrap(*(WVP - frame_size) - *WVP) - wrap(*WVP - *(WVP - volume_size + frame_size));
@@ -660,13 +662,13 @@ void calculate_reliability(float *wrappedVolume, VOXELM *voxel, int volume_width
 		  D2  = wrap(*(WVP - volume_width + 1) - *WVP) - wrap(*WVP - *(WVP + volume_width - 1));
 		  D3  = wrap(*(WVP - frame_size - volume_width - 1) - *WVP) - wrap(*WVP - *(WVP - volume_size + frame_size + volume_width + 1));
 		  D4  = wrap(*(WVP - frame_size - volume_width + 1) - *WVP) - wrap(*WVP - *(WVP - volume_size + frame_size + volume_width - 1));
-		  D5  = wrap(*(WVP - frame_size - volume_width) - *WVP) - wrap(*WVP - *(WVP - volume_size + frame_size + volume_width));	
+		  D5  = wrap(*(WVP - frame_size - volume_width) - *WVP) - wrap(*WVP - *(WVP - volume_size + frame_size + volume_width));
 		  D6  = wrap(*(WVP - frame_size - 1) - *WVP) - wrap(*WVP - *(WVP - volume_size + frame_size + 1));
 		  D7  = wrap(*(WVP - frame_size + 1) - *WVP) - wrap(*WVP - *(WVP - volume_size + frame_size - 1));
 		  D8  = wrap(*(WVP - frame_size + volume_width - 1) - *WVP) - wrap(*WVP - *(WVP - volume_size + frame_size - volume_width + 1));
 		  D9  = wrap(*(WVP - frame_size + volume_width) - *WVP) - wrap(*WVP - *(WVP - volume_size + frame_size - volume_width));
 		  D10 = wrap(*(WVP - frame_size + volume_width + 1) - *WVP) - wrap(*WVP - *(WVP - volume_size + frame_size - volume_width - 1));
-		  voxel_pointer->reliability = H*H + V*V + N*N + D1*D1 + D2*D2  + D3*D3 + D4*D4  + D5*D5 + D6*D6  
+		  voxel_pointer->reliability = H*H + V*V + N*N + D1*D1 + D2*D2  + D3*D3 + D4*D4  + D5*D5 + D6*D6
 		    + D7*D7 + D8*D8 + D9*D9 + D10*D10;
 		}
 	      voxel_pointer++;
@@ -674,7 +676,7 @@ void calculate_reliability(float *wrappedVolume, VOXELM *voxel, int volume_width
 	    }
 	  voxel_pointer += 2;
 	  WVP += 2;
-	}	
+	}
     }
 }
 
@@ -688,12 +690,12 @@ void  horizontalEDGEs(VOXELM *voxel, EDGE *edge, int volume_width, int volume_he
   EDGE *edge_pointer = edge;
   VOXELM *voxel_pointer = voxel;
   int no_of_edges = params->no_of_edges;
-	
+
   for (n=0; n < volume_depth; n++)
     {
       for (i = 0; i < volume_height; i++)
 	{
-	  for (j = 0; j < volume_width - 1; j++) 
+	  for (j = 0; j < volume_width - 1; j++)
 	    {
 	      if (voxel_pointer->input_mask == NOMASK && (voxel_pointer + 1)->input_mask == NOMASK )
 		{
@@ -737,7 +739,7 @@ void  verticalEDGEs(VOXELM *voxel, EDGE *edge, int volume_width, int volume_heig
   int n, i, j;
   int no_of_edges = params->no_of_edges;
   VOXELM *voxel_pointer = voxel;
-  EDGE *edge_pointer = edge + no_of_edges; 
+  EDGE *edge_pointer = edge + no_of_edges;
   int frame_size = volume_width * volume_height;
   int next_voxel = frame_size - volume_width;
 
@@ -745,7 +747,7 @@ void  verticalEDGEs(VOXELM *voxel, EDGE *edge, int volume_width, int volume_heig
     {
       for (i=0; i<volume_height - 1; i++)
 	{
-	  for (j=0; j < volume_width; j++) 
+	  for (j=0; j < volume_width; j++)
 	    {
 	      if (voxel_pointer->input_mask == NOMASK && (voxel_pointer + volume_width)->input_mask == NOMASK )
 		{
@@ -760,7 +762,7 @@ void  verticalEDGEs(VOXELM *voxel, EDGE *edge, int volume_width, int volume_heig
 	    }
 	}
       voxel_pointer += volume_width;
-    } 
+    }
 
   if (params->y_connectivity == 1)
     {
@@ -800,7 +802,7 @@ void  normalEDGEs(VOXELM *voxel, EDGE *edge, int volume_width, int volume_height
     {
       for (i=0; i<volume_height; i++)
 	{
-	  for (j=0; j < volume_width; j++) 
+	  for (j=0; j < volume_width; j++)
 	    {
 	      if (voxel_pointer->input_mask == NOMASK && (voxel_pointer + frame_size)->input_mask == NOMASK )
 		{
@@ -816,7 +818,7 @@ void  normalEDGEs(VOXELM *voxel, EDGE *edge, int volume_width, int volume_height
 	}
     }
 
-	
+
   if (params->z_connectivity == 1)
     {
       voxel_pointer = voxel + next_voxel;
@@ -840,11 +842,11 @@ void  normalEDGEs(VOXELM *voxel, EDGE *edge, int volume_width, int volume_height
   params->no_of_edges = no_of_edges;
 }
 
-//gather the voxels of the volume into groups 
+//gather the voxels of the volume into groups
 void  gatherVOXELs(EDGE *edge, params_t *params)
 {
   int k;
-  VOXELM *VOXEL1;   
+  VOXELM *VOXEL1;
   VOXELM *VOXEL2;
   VOXELM *group1;
   VOXELM *group2;
@@ -862,7 +864,7 @@ void  gatherVOXELs(EDGE *edge, params_t *params)
       if (VOXEL2->head != VOXEL1->head)
 	{
 	  //VOXELM 2 is alone in its group
-	  //merge this voxel with VOXELM 1 group and find the number of 2 pi to add 
+	  //merge this voxel with VOXELM 1 group and find the number of 2 pi to add
 	  //to or subtract to unwrap it
 	  if ((VOXEL2->next == NULL) && (VOXEL2->head == VOXEL2))
 	    {
@@ -874,7 +876,7 @@ void  gatherVOXELs(EDGE *edge, params_t *params)
 	    }
 
 	  //VOXELM 1 is alone in its group
-	  //merge this voxel with VOXELM 2 group and find the number of 2 pi to add 
+	  //merge this voxel with VOXELM 2 group and find the number of 2 pi to add
 	  //to or subtract to unwrap it
 	  else if ((VOXEL1->next == NULL) && (VOXEL1->head == VOXEL1))
 	    {
@@ -883,7 +885,7 @@ void  gatherVOXELs(EDGE *edge, params_t *params)
 	      (VOXEL2->head->number_of_voxels_in_group)++;
 	      VOXEL1->head = VOXEL2->head;
 	      VOXEL1->increment = VOXEL2->increment+pointer_edge->increment;
-	    } 
+	    }
 
 	  //VOXELM 1 and VOXELM 2 both have groups
 	  else
@@ -909,7 +911,7 @@ void  gatherVOXELs(EDGE *edge, params_t *params)
 		      group2->increment += incremento;
 		      group2 = group2->next;
 		    }
-		} 
+		}
 
 	      //if the no. of voxels in VOXELM 2 group is larger than the no. of voxels
 	      //in VOXELM 1 group.   Merge VOXELM 1 group to VOXELM 2 group
@@ -938,7 +940,7 @@ void  gatherVOXELs(EDGE *edge, params_t *params)
     }
 }
 
-//unwrap the volume 
+//unwrap the volume
 void unwrapVolume(VOXELM *voxel, int volume_width, int volume_height, int volume_depth)
 {
   int i;
@@ -955,21 +957,16 @@ void unwrapVolume(VOXELM *voxel, int volume_width, int volume_height, int volume
 //set the masked voxels (mask = 0) to the minimum of the unwrapper phase
 void  maskVolume(VOXELM *voxel, unsigned char *input_mask, int volume_width, int volume_height, int volume_depth)
 {
-  int volume_width_plus_one  = volume_width + 1;
-  int volume_height_plus_one  = volume_height + 1;
-  int volume_width_minus_one = volume_width - 1;
-  int volume_height_minus_one = volume_height - 1;
-
   VOXELM *pointer_voxel = voxel;
   unsigned char *IMP = input_mask;	//input mask pointer
   float min=99999999.;
-  int i, j;
+  int i;
   int volume_size = volume_width * volume_height * volume_depth;
 
   //find the minimum of the unwrapped phase
   for (i = 0; i < volume_size; i++)
     {
-      if ((pointer_voxel->value < min) && (*IMP == NOMASK)) 
+      if ((pointer_voxel->value < min) && (*IMP == NOMASK))
 	min = pointer_voxel->value;
 
       pointer_voxel++;
@@ -977,7 +974,7 @@ void  maskVolume(VOXELM *voxel, unsigned char *input_mask, int volume_width, int
     }
 
   pointer_voxel = voxel;
-  IMP = input_mask;	
+  IMP = input_mask;
 
   //set the masked voxels to minimum
   for (i = 0; i < volume_size; i++)
@@ -1002,7 +999,7 @@ void  returnVolume(VOXELM *voxel, float *unwrappedVolume, int volume_width, int 
   float *unwrappedVolume_pointer = unwrappedVolume;
   VOXELM *voxel_pointer = voxel;
 
-  for (i=0; i < volume_size; i++) 
+  for (i=0; i < volume_size; i++)
     {
       *unwrappedVolume_pointer = voxel_pointer->value;
       voxel_pointer++;
