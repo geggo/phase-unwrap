@@ -1,5 +1,5 @@
 from numpy.testing import run_module_suite, TestCase, assert_array_almost_equal
-from unwrap.unwrap import unwrap
+from unwrap import unwrap
 import numpy as np
 
 class test_unwrap(TestCase):
