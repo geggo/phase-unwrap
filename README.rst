@@ -25,11 +25,37 @@ The interface consists of a single function:
 ::
 
     >>> from unwrap import unwrap
-    >>> unwrap(
+    >>> unwrapped_array = unwrap(
     ...    wrapped_array,
     ...    wrap_around_axis_0=False,
     ...    wrap_around_axis_1=False,
     ...    wrap_around_axis_2=False)
 
-It takes a 2- or 3-dimensional ``numpy`` array of floats and returns an array with the same shape with the values changed by ``(2 pi n)`` such that the whole array has the least amount of jumps.
+It takes a 2- or 3-dimensional ``numpy`` array of floats, ``wrapped_array``, and returns
+an array with the same shape with the values changed by integer
+multiples of 2 pi such that the whole array has the least amount of
+jumps. 
+
+``wrapped_array`` can be a `masked array
+<http://docs.scipy.org/doc/numpy/reference/maskedarray.generic.html>`_,
+in this case masked entries are ignored during the phase unwrapping
+process. This is useful if the wrapped phase data has holes or contains
+invalid entries.
+
+If the optional arguments ``wrap_around_axis_0`` etc. are set to
+``True``, then phase unwrapping takes place also across the boundaries
+of the specified axis, i.e., the first and last pixel along this axis
+are assumed to be neighbours. 
+
+Internally the wrapped array is converted to a C-contiguous array of
+``np.float32``, therefor the unwrapped array also has this data type. 
+
 Usage examples can be found in ``test/test_unwrap.py``.
+
+People
+------
+
+The original C code by the authors mentioned above has been slightly modified by
+Gregor Thalhammer for using it as a library. Bogdan Opanchuk changed
+the Python wrapper to use `cffi <https://pypi.python.org/pypi/cffi>`_
+instead of `Cython <http://cython.org>`_ and improved packaging.
