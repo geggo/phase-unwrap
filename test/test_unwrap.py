@@ -71,14 +71,19 @@ def unwrap_plots():
     import matplotlib.pyplot as plt
 
     fig = plt.figure()
+    plt.gray()
     s = fig.add_subplot(221)
     s.imshow(phi, interpolation = 'nearest')
+    s.set_title('original phase')
     s = fig.add_subplot(222)
     s.imshow(phi_wrapped, interpolation = 'nearest')
+    s.set_title('wrapped phase')
     s = fig.add_subplot(223)
     s.imshow(phi_unwrapped, interpolation = 'nearest')
+    s.set_title('unwrapped phase')
     s = fig.add_subplot(224)
     s.imshow(phi_unwrapped_masked, interpolation = 'nearest')
+    s.set_title('unwrapped phase with mask')
     fig.savefig('test.png')
 
 
