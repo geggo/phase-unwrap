@@ -11,13 +11,30 @@ except ImportError:
     sys.stderr.write('Please use "pip install cffi", or equivalent.\n')
     sys.exit(1)
 
-
 import unwrap.unwrap2D as unwrap2D
 import unwrap.unwrap3D as unwrap3D
+
+
+DOCUMENTATION = open('README.rst').read()
 
 setup(
     name='unwrap',
     version="0.1.0",
+    author='Gregor Thalhammer',
+    author_email='gregor.thalhammer@gmail.com',
+    url='http://github.com/geggo/phase-unwrap',
+    description='2D and 3D phase unwrapping',
+    long_description=DOCUMENTATION,
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Intended Audience :: Science/Research',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 3',
+        'Topic :: Scientific/Engineering',
+        'Operating System :: OS Independent'
+        ],
     install_requires=[
         "numpy>=1.6",
         "cffi>=0.7",
