@@ -5,15 +5,15 @@ from Cython.Distutils import build_ext
 import numpy as np
 
 ext_modules = [
-    Extension('unwrap2D', 
+    Extension('unwrap2D',
               ['unwrap2D.pyx',
-               'Miguel_2D_unwrapper_with_mask_and_wrap_around_option.c',
+               'unwrap2D.c',
                ],
               include_dirs = [np.get_include(),],
               ),
-    Extension('unwrap3D', 
+    Extension('unwrap3D',
               ['unwrap3D.pyx',
-               'Hussein_3D_unwrapper_with_mask_and_wrap_around_option.c',
+               'unwrap3D.c',
                ],
               include_dirs = [np.get_include(),],
               ),
@@ -23,7 +23,7 @@ import numpy as np
 
 setup(
     name = 'unwrap',
-    #ext_modules = cythonize(['cytransient.pyx',], 
+    #ext_modules = cythonize(['cytransient.pyx',],
     #                        include_path = [np.get_include(),],
     #                        ),
     cmdclass = {'build_ext': build_ext},
