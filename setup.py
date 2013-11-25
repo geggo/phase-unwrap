@@ -19,7 +19,7 @@ DOCUMENTATION = open('README.rst').read()
 
 setup(
     name='unwrap',
-    version="0.1.0",
+    version="0.1.1",
     author='Gregor Thalhammer',
     author_email='gregor.thalhammer@gmail.com',
     url='http://github.com/geggo/phase-unwrap',
