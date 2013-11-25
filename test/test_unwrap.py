@@ -48,6 +48,17 @@ class test_unwrap(TestCase):
         s = np.round(phi_unwrapped_masked[0,0,0]/(2*np.pi))
         assert_array_almost_equal(phi + 2*np.pi*s, phi_unwrapped_masked)
 
+    def test_unwrap3D_y_wraparound(self):
+        """
+        Regression test for an incorrect addressing when wrapping around Y-axis is enabled.
+        Produced a segfault.
+        """
+        x, y, z = np.ogrid[:11, :128, :128]
+        phi = 2*np.pi*(x*0.2 + y*0.1 + z*0.05)
+        phi_wrapped = np.angle(np.exp(1j*phi))
+        phi_unwrapped = unwrap(phi_wrapped, wrap_around_axis_1=True)
+
+
 def unwrap_plots():
 
     x, y = np.ogrid[:32, :32]
