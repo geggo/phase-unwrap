@@ -10,15 +10,20 @@ More information about the code can be found on GERI homepage: `2D <http://www.l
 The general principle and applications are the same as those for a 1D ``unwrap`` `available in numpy <http://docs.scipy.org/doc/numpy/reference/generated/numpy.unwrap.html>`_.
 
 
-Usage
------
+Installation
+------------
 
-The package is based on `cffi <https://pypi.python.org/pypi/cffi>`_ and requires it for installation:
+The package is based on `cffi <https://pypi.python.org/pypi/cffi>`_ and requires it for installation. 
+For some systems pre-built binary packages are available (see `unwrap <https://pypi.python.org/pypi/unwrap>`_), 
+for other systems that require building from source a C compiler is necessary.
 
 ::
 
     $ pip install cffi
     $ pip install unwrap
+
+Usage
+-----
 
 The interface consists of a single function:
 
