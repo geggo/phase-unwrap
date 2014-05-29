@@ -9,6 +9,10 @@ This is a Python wrapper for 2D and 3D phase unwrapping code based on:
 More information about the code can be found on GERI homepage: `2D <http://www.ljmu.ac.uk/GERI/90207.htm>`_, `3D <http://www.ljmu.ac.uk/GERI/90208.htm>`_.
 The general principle and applications are the same as those for a 1D ``unwrap`` `available in numpy <http://docs.scipy.org/doc/numpy/reference/generated/numpy.unwrap.html>`_.
 
+Deprecation notice
+------------------
+
+This algorithm has also been included in `scikit-image <http://scikit-image.org>`_, derived from this (cython based) wrapper. I recommend using the scikit-image version due to better testing and additional bug fixes.
 
 Installation
 ------------
