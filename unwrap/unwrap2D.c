@@ -9,7 +9,7 @@
 //Date 26th August 2007
 //The wrapped phase map is assumed to be of floating point data type. The resultant unwrapped phase map is also of floating point type.
 //The mask is of byte data type.
-//When the mask is 255 this means that the pixel is valid
+//When the mask is 1 this means that the pixel is valid
 //When the mask is 0 this means that the pixel is invalid (noisy or corrupted pixel)
 //This program takes into consideration the image wrap around problem encountered in MRI imaging.
 
@@ -205,9 +205,20 @@ void extend_mask(unsigned char *input_mask, unsigned char *extended_mask,
   int i,j;
   int image_width_plus_one = image_width + 1;
   int image_width_minus_one = image_width - 1;
-  unsigned char *IMP = input_mask    + image_width + 1;	//input mask pointer
-  unsigned char *EMP = extended_mask + image_width + 1;	//extended mask pointer
+  unsigned char *IMP;	//input mask pointer
+  unsigned char *EMP = extended_mask;	//extended mask pointer
 
+  for (i=0; i < image_height; ++i)
+    {
+      for (j=0; j < image_width; ++j)
+	{
+	  *EMP = MASK;
+	  ++EMP;
+	}
+    }
+  
+  IMP = input_mask    + image_width + 1;
+  EMP = extended_mask + image_width + 1;
   //extend the mask for the image except borders
   for (i=1; i < image_height - 1; ++i)
     {
