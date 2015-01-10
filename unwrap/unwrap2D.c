@@ -9,8 +9,8 @@
 //Date 26th August 2007
 //The wrapped phase map is assumed to be of floating point data type. The resultant unwrapped phase map is also of floating point type.
 //The mask is of byte data type.
-//When the mask is 255 this means that the pixel is valid
-//When the mask is 0 this means that the pixel is invalid (noisy or corrupted pixel)
+//When the mask is 0 this means that the pixel is valid
+//When the mask is 1 this means that the pixel is invalid (noisy or corrupted pixel)
 //This program takes into consideration the image wrap around problem encountered in MRI imaging.
 
 #include <stdio.h>
@@ -41,8 +41,8 @@ struct PIXELM
   int number_of_pixels_in_group;//No. of pixel in the pixel group
   float value;			//value of the pixel
   float reliability;
-  unsigned char input_mask;	//0 pixel is masked. NOMASK pixel is not masked
-  unsigned char extended_mask;	//0 pixel is masked. NOMASK pixel is not masked
+  unsigned char input_mask;	//MASK (pixel is masked) or NOMASK (pixel is not masked, i.e. valid)
+  unsigned char extended_mask;	//MASK (pixel is masked) or NOMASK (pixel is not masked, i.e. valid)
   int group;			//group No.
   int new_group;
   struct PIXELM *head;		//pointer to the first pixel in the group in the linked list
@@ -219,6 +219,10 @@ void extend_mask(unsigned char *input_mask, unsigned char *extended_mask,
 	       (*(IMP + image_width_minus_one) == NOMASK) && (*(IMP + image_width_plus_one) == NOMASK) )
 	    {
 	      *EMP = NOMASK;
+	    }
+	    else
+	    {
+	      *EMP = MASK;
 	    }
 	  ++EMP;
 	  ++IMP;
